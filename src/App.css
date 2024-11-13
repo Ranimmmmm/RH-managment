@@ -1,38 +1,91 @@
+/* General resets */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* Main app container */
 .App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  min-height: 100vh;
+  width: 100%; /* Ensure full width */
+}
+.logo-container {
+  padding: 10px; 
+  border-bottom: 1px solid #ccc;  
 }
 
-.App-link {
-  color: #61dafb;
+/* Sidebar basic styling */
+.sidebar {
+  position: fixed;
+  padding: 20px;
+  left: 0;
+  top: 0;
+  width: 240px;
+  height: 100vh;
+  background-color: #fff3f3;
+  overflow-y: auto;
+  z-index: 1000;
+  color: #000000;
+  padding: 50px 10px 40px 10px; /* Top, Right, Bottom, Left */
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+/* Content area */
+.content {
+  margin-left: 240px;
+  padding: 20px;
+  background-color: #fff;
+  min-height: 100vh;
+}
+
+
+
+/* Main content styles */
+.content {
+  margin-left: 250px; /* Same as the sidebar's width */
+  padding: 20px; /* Padding for content readability */
+  width: calc(100% - 250px); /* Adjusts width to take remaining space */
+  min-height: 100vh; /* Minimum height */
+  transition: margin-left 0.3s ease; /* Smooth transition for margin */
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #1a73e8;
+}
+
+.error-message {
+  color: #d93025;
+  text-align: center;
+  margin-top: 10px;
+}
+
+
+@media (max-width: 768px) {
+  .sidebar {
+      width: 100px;
   }
-  to {
-    transform: rotate(360deg);
+  .content {
+      margin-block: 100px;
   }
 }
+
+@media (max-width: 480px) {
+  .sidebar {
+      width: 60%;
+      padding: 10px 0; /* Only top and bottom padding */
+  }
+  .content {
+      margin: 0;
+      padding: 10px;
+  }
+}
+

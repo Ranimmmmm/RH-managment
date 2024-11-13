@@ -1,0 +1,55 @@
+.activity-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+}
+
+.activity-table th, .activity-table td {
+  padding: 16px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  white-space: nowrap;
+}
+
+.activity-table th {
+  background-color: #f0f0f0; /* Light grey background for the header */
+}
+
+.activity-table td {
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.activity-table button {
+  padding: 5px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 10px; /* Adds space to the right of each button except the last one */
+}
+
+.activity-table button:last-child {
+  margin-right: 0; /* Removes margin for the last button */
+}
+
+.activity-table button:hover {
+  background-color: #0056b3;
+}
+
+.add-employee {
+  width: auto;
+  padding: 10px 20px;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: block;
+  margin: 20px auto;
+}
+
+.add-employee:hover {
+  background-color: #218838;
+}

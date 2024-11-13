@@ -1,0 +1,119 @@
+
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;  /* This centers the children horizontally */
+  justify-content: center;  /* This centers the children vertically if needed */
+  width: 100%;  /* Ensures the container takes full width */
+}
+.toolbar {
+  display: flex;
+  justify-content: space-between; /* This spreads out the children to both ends */
+  align-items: center; /* This keeps the items vertically aligned */
+  padding: 10px; /* Adds some padding around the toolbar */
+}
+
+.search-container {
+  margin-right: 20px;  /* Allows the search container to take up as much space as available */
+}
+
+.sort-container {
+  flex-grow: 2; /* Allows the sort container to take up as much space as available */
+  display: flex;
+  justify-content: flex-end; /* Aligns the sort dropdown to the right */
+}
+
+.btn-confirmer {
+  box-sizing: content-box;
+  padding: 8px 16px;
+  transition-duration: 0.4s;  /* Smooth transition for hover effect */
+  cursor: pointer;  /* Pointer cursor on hover */
+  border-radius: 5px;
+  border: none;
+}
+/* Table styling */
+.activity-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 16px;
+}
+
+.activity-table th,
+.activity-table td {
+  padding: 16px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  white-space: nowrap;
+}
+
+
+/* Wrap the content inside table cells on smaller screens */
+.activity-table th,
+.activity-table td {
+  white-space: nowrap;
+}
+
+.activity-table td {
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+/* Title styling */
+.dashboard-title {
+  font-size: 28px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #ea220c;
+}
+
+/* Media Queries for different screen sizes */
+
+/* For phones (up to 480px) */
+@media (max-width: 480px) {
+  .dashboard-container {
+    padding: 10px;
+    width: 95vw;
+  }
+
+  .dashboard-title {
+    font-size: 22px;
+  }
+
+  .activity-table {
+    font-size: 14px;
+  }
+
+  .activity-table th,
+  .activity-table td {
+    padding: 8px;
+  }
+  
+  /* Allow table to scroll horizontally on small screens */
+  .activity-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+}
+
+/* For tablets (up to 768px) */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 15px;
+    width: 95vw;
+  }
+
+  .dashboard-title {
+    font-size: 24px;
+  }
+
+  .activity-table {
+    font-size: 15px;
+  }
+
+  .activity-table th,
+  .activity-table td {
+    padding: 10px;
+  }
+}

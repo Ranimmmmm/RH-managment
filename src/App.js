@@ -1,24 +1,44 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
+import Login from './components/Login';
+import Dashboard from './components/Dashboard';
+import TeamActivityDashboard from './components/TeamActivityDashboard';
+import ListOfEmployees from './components/ListOfEmployees'
+import SideBar from './components/SideBar'
+import './App.css';
+import EmployeeProfile from './components/Profile';
 function App() {
+  const [user, setUser] = useState();
+
+  const handleLogin = (userData) => {
+    setUser(userData);  // Now just setting user data, role is not needed
+  };
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <div className="App">
+        {user && <SideBar />}
+        <div className="content">
+          <Routes>
+            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route 
+              path="/login" 
+              element={
+                user ? 
+                <Navigate to="/employee/dashboard" replace /> :  // Directly navigate to /dashboard
+                <Login onLogin={handleLogin} />
+              } 
+            />
+               <Route path="/employee/Dashboard" element={<Dashboard  />} />
+                <Route path="/employee/TeamActivity" element={<TeamActivityDashboard  />} />
+                <Route path="/employee/:employeeId/:year/:month" element={<EmployeeProfile />} />   
+                <Route path="employee/Listeofemployees" element={<ListOfEmployees />} />
+            </Routes>
+        </div>
+      </div>
+    </Router>
   );
 }
 

@@ -1,0 +1,27 @@
+/* General container padding */
+.page-container {
+    padding: 20px;
+}
+
+/* Sticky position for the button */
+.sticky-button {
+    position: sticky;
+    top: 20px;
+    z-index: 10;
+}
+
+/* Table container to allow scrolling if the content is too large */
+.table-container {
+    max-height: 500px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/* Sticky position for the table header */
+.sticky-header {
+    position: sticky;
+    top: 0;
+    background-color: #333;
+    color: white;
+    z-index: 100;
+}
