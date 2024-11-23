@@ -1,59 +1,47 @@
+const { sequelize } = require('../db'); // Assuming sequelize instance import
 
-const express = require('express');
-const router = express.Router();
-const { Activity , Sequelize} = require('../db');  
-const moment = require('moment');
-const { Op } = require('sequelize');
- async function calculateLeaveDays(employeeId, year, month) {
-    const startDate = moment([year, month - 1]).startOf('month').format('YYYY-MM-DD');
-    const endDate = moment([year, month - 1]).endOf('month').format('YYYY-MM-DD');
-    const ABSENT = 'absent';
-    const CONGÉ = 'congé';
-    const activities = await Activity.findAll({
-        where: {
+async function calculateLeaveDays(employeeId, year, month) {
+    const transaction = await sequelize.transaction();
+    try {
+        const startDate = moment([year, month - 1]).startOf('month').format('YYYY-MM-DD');
+        const endDate = moment([year, month - 1]).endOf('month').format('YYYY-MM-DD');
+        const activities = await Activity.findAll({
+            where: {
+                employeeId: employeeId,
+                actionDate: { [Op.between]: [startDate, endDate] },
+                status: { [Op.or]: ['congé', 'absent'] }
+            }
+        }, { transaction });
+
+        let congéDaysUsed = 0;
+        let absentDays = 0;
+        activities.forEach(activity => {
+            if (activity.status === 'congé') {
+                congéDaysUsed++;
+            } else if (activity.status === 'absent') {
+                absentDays++;
+            }
+        });
+
+        const leaveDaysAccrued = 1.83;
+        let leaveBalance = leaveDaysAccrued - congéDaysUsed;
+        let unpaidLeave = absentDays > leaveBalance ? absentDays - leaveBalance : 0;
+        leaveBalance = Math.max(0, leaveBalance - unpaidLeave);
+
+        await LeaveTransaction.create({
             employeeId: employeeId,
-            actionDate: {
-                [Op.between]: [startDate, endDate]
-            },
-            status:  { [Op.or]: [CONGÉ, ABSENT] }
-        }
-    });
+            date: moment(endDate).endOf('month').toDate(),
+            leaveAccrued: leaveDaysAccrued,
+            leaveUsed: congéDaysUsed + unpaidLeave,
+            leaveBalance: leaveBalance
+        }, { transaction });
 
-    // Calculate 'congé' days and 'absent' days
-    let congéDaysUsed = 0;
-    let absentDays = 0;
-    activities.forEach(activity => {
-        if (activity.status === CONGÉ) {
-            congéDaysUsed++;
-        } else if (activity.status === ABSENT) {
-            absentDays++;
-        }
-    });
+        await transaction.commit();
 
-    const leaveDaysAccrued = 1.83; // Accrued paid leave days per month
-    let leaveBalance = leaveDaysAccrued - congéDaysUsed;
-    let unpaidLeave = 0;
-
-    // Check if absent days should consume remaining paid leave or count as unpaid
-    if (leaveBalance > 0) {
-        if (absentDays > leaveBalance) {
-            unpaidLeave = absentDays - leaveBalance;
-            leaveBalance = 0;
-        } else {
-            leaveBalance -= absentDays;
-        }
-    } else {
-        unpaidLeave = absentDays;
+        return { leaveDaysAccrued, congéDaysUsed, absentDays, unpaidLeave, leaveBalance };
+    } catch (error) {
+        await transaction.rollback();
+        console.error("Error calculating leave days:", error);
+        throw error; // Re-throw the error after rollback
     }
-
-    return {
-        leaveDaysAccrued,
-        congéDaysUsed,
-        absentDays,
-        unpaidLeave,
-        leaveBalance
-    };
 }
-module.exports = {
-    calculateLeaveDays
-};

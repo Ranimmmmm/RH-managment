@@ -64,17 +64,23 @@ router.post('/', cloudinaryFileUploader.single('file'), async (req, res) => {
 router.put('/:id', cloudinaryFileUploader.single('file'), async (req, res) => {
   try {
       const { prénom, nom, email, numérodetèl, fonction } = req.body;
-      const profileImage = req.file ? req.file.path : null;
+      const file = req.file ? req.file.path : null;
 
       const employee = await Employee.findByPk(req.params.id);
+      if (!employee) {
+        return res.status(404).json({
+          message: 'Employee not found',
+          success: false
+        });
+      }
       if (employee) {
           const updatedData = {
-              prénom,
-              nom,
-              email,
-              numérodetèl,
-              fonction,
-              profileImage: profileImage || employee.profileImage, // Retain existing image if none is uploaded
+            prénom: prénom || employee.prénom,
+              nom: nom || employee.nom,
+              email: email || employee.email,
+              numérodetèl: numérodetèl || employee.numérodetèl,
+              fonction: fonction || employee.fonction,
+              file: file || employee.file,
           };
 
           const updatedEmployee = await employee.update(updatedData);

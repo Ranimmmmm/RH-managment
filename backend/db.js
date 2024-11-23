@@ -33,9 +33,12 @@ Object.keys(db).forEach(modelName => {
     }
 });
 
-if ( db.Employee && db.Activity) {
+if ( db.Employee && db.Activity && db.LeaveTransaction) {
     db.Employee.hasMany(db.Activity, { foreignKey: 'employeeId' });
     db.Activity.belongsTo(db.Employee, { foreignKey: 'employeeId' });
+    db.Employee.hasMany(db.LeaveTransaction, { foreignKey: 'employeeId' });
+    db.LeaveTransaction.belongsTo(db.Employee, { foreignKey: 'employeeId' });
+
 }
 
 db.sequelize = sequelize;

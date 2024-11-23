@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Activity, Employee, Sequelize } = require('../db');
+const { Activity, Employee, LeaveTransaction, Sequelize } = require('../db');
 const moment = require('moment');
 const { Op } = require('sequelize');
 const { calculateLeaveDays } = require('../controllers/LeaveController');
@@ -79,26 +79,6 @@ router.post('/save', async (req, res) => {
         res.status(500).send({ error: 'Internal Server Error', message: error.message });
     }
 });
-/* router.get('/employee/:employeeId/range', async (req, res) => {
-    const { employeeId } = req.params;
-    const { startDate, endDate } = req.query;
-
-    try {
-        const activities = await Activity.findAll({
-            where: {
-                employeeId: employeeId,
-                actionDate: {
-                    [Op.between]: [moment(startDate).startOf('day').toDate(), moment(endDate).endOf('day').toDate()]
-                }
-            },
-            order: [['actionDate', 'ASC']]
-        });
-        res.json(activities);
-    } catch (error) {
-        console.error('Failed to retrieve activities by range:', error);
-        res.status(500).send({ error: 'Internal Server Error' });
-    }
-}); */
 
 // Corrected route to get activities for a specific employee and month/year
 router.get('/employee/:employeeId/:year/:month', async (req, res) => {
@@ -232,6 +212,63 @@ router.get('/employee/:employeeId/getByDateRange', async (req, res) => {
         res.status(500).send({ error: 'Internal Server Error' });
     }
 });
+
+router.get('/employee/:employeeId/leave-summary/:year/:month', async (req, res) => {
+    const { employeeId, year, month } = req.params;
+
+    try {
+        const employee = await Employee.findByPk(employeeId);
+        if (!employee) {
+            return res.status(404).send({ error: 'Employee not found' });
+        }
+
+        const startDate = moment(`${year}-${month}-01`).startOf('month').toDate();
+        const endDate = moment(startDate).endOf('month').toDate();
+
+        // Correcting the field name to 'actionDate'
+        const totalCongeDays = await Activity.count({
+            where: {
+                employeeId: employeeId,
+                actionDate: { [Op.between]: [startDate, endDate] },
+                status: 'congé'
+            },
+            distinct: true,
+            col: 'actionDate'  // Using the correct column name for counting distinct days
+        });
+
+        const transactionDate = endDate; // Use the last day of the month for the transaction date
+
+        const [leaveTransaction, created] = await LeaveTransaction.findOrCreate({
+            where: { employeeId, month, year },
+            defaults: {
+                date: transactionDate, // Ensure date is set here
+                leaveAccrued: 1.83,
+                leaveUsed: totalCongeDays,
+                leaveBalance: 1.83 - totalCongeDays
+            }
+        });
+
+        if (!created) {
+            leaveTransaction.date = transactionDate; // Set date here too if updating
+            leaveTransaction.leaveUsed = totalCongeDays;
+            leaveTransaction.leaveBalance = leaveTransaction.leaveAccrued - totalCongeDays;
+            await leaveTransaction.save();
+        }
+
+        res.json({
+            employeeId,
+            year,
+            month,
+            totalLeaveAccrued: leaveTransaction.leaveAccrued,
+            totalLeaveUsed: leaveTransaction.leaveUsed,
+            currentLeaveBalance: leaveTransaction.leaveBalance
+        });
+    } catch (error) {
+        console.error('Failed to calculate leave summary:', error);
+        res.status(500).send({ error: 'Internal Server Error' });
+    }
+});
+
 
 
 
