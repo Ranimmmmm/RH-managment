@@ -97,6 +97,7 @@ router.get('/employee/:employeeId/:year/:month', async (req, res) => {
                     [Op.between]: [startDate, endDate]
                 }
             },
+            attributes: ['updatedAt', 'status'] ,
             order: [['updatedAt', 'DESC']]
         });
 
@@ -145,7 +146,7 @@ router.get('/employee/:employeeId/:year/:month', async (req, res) => {
 
 
 // Route to get activities within a date range
-router.get('/employee/:employeeId/getByDateRange', async (req, res) => {
+/* router.get('/employee/:employeeId/getByDateRange', async (req, res) => {
     const { startDate, endDate } = req.query;
     const { employeeId } = req.params;
 
@@ -211,11 +212,11 @@ router.get('/employee/:employeeId/getByDateRange', async (req, res) => {
         console.error('Failed to retrieve activities by date range:', error);
         res.status(500).send({ error: 'Internal Server Error' });
     }
-});
+}); */
 
-router.get('/employee/:employeeId/leave-summary/:year/:month', async (req, res) => {
+ /* router.get('/employee/:employeeId/leave-summary/:year', async (req, res) => {
     const { employeeId, year, month } = req.params;
-
+    const {months} = req.query;
     try {
         const employee = await Employee.findByPk(employeeId);
         if (!employee) {
@@ -267,7 +268,90 @@ router.get('/employee/:employeeId/leave-summary/:year/:month', async (req, res) 
         console.error('Failed to calculate leave summary:', error);
         res.status(500).send({ error: 'Internal Server Error' });
     }
+});  */
+// Add overall yearly summary to leave-summary API
+/* router.get('/employee/:employeeId/leave-summary/:year', async (req, res) => {
+    const { employeeId, year } = req.params;
+    const { months } = req.query;
+
+    try {
+        // Validate the employee
+        const employee = await Employee.findByPk(employeeId);
+        if (!employee) {
+            return res.status(404).send({ error: 'Employee not found' });
+        }
+
+        // Parse months
+        const monthsArray = months ? months.split(',').map(Number).filter(m => m >= 1 && m <= 12) : [];
+        if (!monthsArray.length) {
+            return res.status(400).send({ error: 'No valid months specified' });
+        }
+
+        // Fetch LeaveTransaction data for each month
+        const summaries = await Promise.all(
+            monthsArray.map(async (month) => {
+                const leaveTransaction = await LeaveTransaction.findOne({
+                    where: { employeeId, year, month },
+                });
+
+                const leaveAccrued = leaveTransaction ? leaveTransaction.leaveAccrued : 1.83;
+                const leaveUsed = leaveTransaction ? leaveTransaction.leaveUsed : 0;
+                const leaveBalance = leaveTransaction ? leaveTransaction.remainingLeave : leaveAccrued - leaveUsed;
+
+                // Fetch activity details (if needed)
+                const activity = await Activity.findOne({
+                    where: {
+                        employeeId,
+                        updatedAt: {
+                            [Op.between]: [
+                                moment(`${year}-${month}-01`).startOf('month').toDate(),
+                                moment(`${year}-${month}-01`).endOf('month').toDate(),
+                            ],
+                        },
+                    },
+                });
+
+                return {
+                    month,
+                    leaveAccrued,
+                    leaveUsed,
+                    leaveBalance,
+                    activityDetails: activity ? {
+                        status: activity.status || '--',
+                        inTime: activity.inTime || '--',
+                        outTime: activity.outTime || '--',
+                        numberOfMissions: activity.numberOfMissions || 0,
+                        paidLeaveBalance: activity.paidLeaveBalance || 0,
+                    } : '--',
+                };
+            })
+        );
+
+        // Compute yearly summary
+        const totalLeaveUsed = summaries.reduce((sum, s) => sum + s.leaveUsed, 0);
+        const totalLeaveAccrued = 1.83 * 12; // Assuming 1.83 days accrued per month for a full year
+        const remainingLeave = totalLeaveAccrued - totalLeaveUsed;
+
+        res.json({
+            summaries,
+            yearlySummary: {
+                totalLeaveUsed,
+                totalLeaveAccrued,
+                remainingLeave,
+            },
+        });
+    } catch (error) {
+        console.error('Error processing leave summary:', error);
+        res.status(500).send({ error: 'Internal Server Error' });
+    }
 });
+ */
+
+
+
+
+
+
 
 
 

@@ -3,12 +3,13 @@ const cors = require('cors');
 const db = require('./db'); // Import the unified Sequelize setup
 const ensureDatabase = require('./ensureDatabase');
 const passport = require('passport');
+const path = require('path');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const session = require('express-session');
 const dotenv = require ('dotenv').config();
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb', extended: true }));
+app.use(express.urlencoded({ limit: '10mb', extended: true, parameterLimit: 50000 }));
 app.use(cors({
     origin: 'http://localhost:3001',
     credentials: true,
@@ -42,7 +43,8 @@ app.use(session({
 
 app.use(passport.initialize());
 app.use(passport.session());
-
+//static Folder
+app.use('/files', express.static(path.join(__dirname, 'files')));
 // Import your route handlers
 const authentificationRoutes = require('./routes/authentificationRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
@@ -52,7 +54,6 @@ const summaryRoutes = require ('./routes/summaryRoutes')
 // Use your routes
 app.use('/users', authentificationRoutes)
 app.use('/employees', employeeRoutes);
-//app.use('/attendance', attendanceRoutes);
 app.use('/activities', activityRoutes);
 app.use('/employee-summary', summaryRoutes);
 // Define authentication routes

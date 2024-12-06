@@ -3,25 +3,25 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../db'); // Adjust the path as necessary
 module.exports = (sequelize, DataTypes) => {
 const Employee = sequelize.define('Employee', {
-    prénom: {
+    prenom: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
     },
     nom: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
     },
     email: {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    numérodetèl: {
+    numerodetel: {
         type: DataTypes.STRING,
         allowNull: false
     },
     fonction: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: true
     },
     file:{
         type: DataTypes.STRING,

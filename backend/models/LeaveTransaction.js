@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.FLOAT,
         allowNull: false,
       },
-      leaveBalance: {
+      remainingLeave: {
         type: DataTypes.FLOAT,
         allowNull: false,
       },

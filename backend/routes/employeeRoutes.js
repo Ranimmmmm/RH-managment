@@ -3,8 +3,15 @@ const router = express.Router();
 const { Employee } = require('../db'); // Ensure this imports correctly
 const multer = require('multer');
 const employee = require('../models/employee');
-const storage = multer.memoryStorage()
-const cloudinaryFileUploader= multer({ storage: storage })// Get all employees
+const storage = multer.diskStorage({
+  destination: function(req,file,cb){
+    cb(null, path.join(__dirname,"../files"))
+  },
+  filename: function (req,file,cb){
+    cb(null, new Date().toISOString() + file.originalname.replace(/:/g, "-"));
+  }
+})
+const upload = multer({storage})
 router.get('/all', async (req, res) => {
   try {
     const employees = await Employee.findAll();
@@ -31,19 +38,27 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create a new employee
-router.post('/', cloudinaryFileUploader.single('file'), async (req, res) => {
+router.post('/',  async (req, res) => {
   try {
-      const { prénom, nom, email, numérodetèl, fonction } = req.body;
+      const { prenom, nom, email, numerodetel, fonction } = req.body;
       const profileImage = req.file ? req.file.path : null;
-
+      console.log('Received fields:', req.body);
+      console.log('Received file:', req.file);
+      if (!prenom || !nom || !email || !numerodetel || !fonction) {
+        return res.status(400).json({
+          message: 'All fields are required',
+          success: false,
+        });
+      }
       const emp = new Employee({
-          prénom,
+          prenom,
           nom,
           email,
-          numérodetèl,
+          numerodetel,
           fonction,
           profileImage,
       });
+      console.log('emp', req.body);
 
       await emp.save();
       res.status(201).json({
@@ -55,15 +70,15 @@ router.post('/', cloudinaryFileUploader.single('file'), async (req, res) => {
       res.status(500).json({
           message: 'Internal Server Error',
           success: false,
-          error: err,
+          error: err.message || err,
       });
   }
 });
 
 // Update an employee
-router.put('/:id', cloudinaryFileUploader.single('file'), async (req, res) => {
+router.put('/:id', upload.single('file'), async (req, res) => {
   try {
-      const { prénom, nom, email, numérodetèl, fonction } = req.body;
+      const { prenom, nom, email, numerodetel, fonction } = req.body;
       const file = req.file ? req.file.path : null;
 
       const employee = await Employee.findByPk(req.params.id);
@@ -75,10 +90,10 @@ router.put('/:id', cloudinaryFileUploader.single('file'), async (req, res) => {
       }
       if (employee) {
           const updatedData = {
-            prénom: prénom || employee.prénom,
+            prenom: prenom || employee.prenom,
               nom: nom || employee.nom,
               email: email || employee.email,
-              numérodetèl: numérodetèl || employee.numérodetèl,
+              numerodetel: numerodetel || employee.numerodetel,
               fonction: fonction || employee.fonction,
               file: file || employee.file,
           };
@@ -89,6 +104,7 @@ router.put('/:id', cloudinaryFileUploader.single('file'), async (req, res) => {
               success: true,
               data: updatedEmployee,
           });
+          console.log(updatedEmployee)
       } else {
           res.status(404).send('Employee not found');
       }

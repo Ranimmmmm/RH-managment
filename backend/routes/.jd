@@ -23,7 +23,6 @@ router.get('/employee/:employeeId/leave-summary/:year', async (req, res) => {
                 const leaveTransaction = await LeaveTransaction.findOne({
                     where: { employeeId, year, month },
                 });
-                console.log('leave trans:' , leaveTransaction);
 
                 const leaveAccrued = leaveTransaction ? leaveTransaction.leaveAccrued : 1.83;
                 const leaveUsed = leaveTransaction ? leaveTransaction.leaveUsed : 0;
@@ -79,10 +78,6 @@ router.get('/employee/:employeeId/leave-summary/:year', async (req, res) => {
         res.status(500).send({ error: 'Internal Server Error' });
     }
 });
-
-
-
-module.exports = router;
 
 
 
