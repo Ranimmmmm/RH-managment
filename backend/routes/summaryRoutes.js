@@ -1,11 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const moment = require('moment');
-const { Op } = require('sequelize');
-const { Activity, Employee, LeaveTransaction, Sequelize } = require('../db');
+const {getYearlySummaryLeaveByEmployeeId} = require('../controllers/LeaveController');
 
-
-router.get('/employee/:employeeId/leave-summary/:year', async (req, res) => {
+/*router.get('/employee/:employeeId/leave-summary/:year', async (req, res) => {
     const { employeeId, year } = req.params;
     const { months } = req.query;
 
@@ -17,22 +14,12 @@ router.get('/employee/:employeeId/leave-summary/:year', async (req, res) => {
         }
 
         // Fetch LeaveTransaction data and aggregate by month
-        const summaries = await Promise.all(
-            monthsArray.map(async (month) => {
-                // Fetch LeaveTransaction data for the month
-                const leaveTransaction = await LeaveTransaction.findOne({
-                    where: { employeeId, year, month },
-                });
-                console.log('leave trans:' , leaveTransaction);
+            const summaries = await Promise.all(
+                monthsArray.map(async (month) => {
+                   // const leaveSummary = await calculateLeaveDays(employeeId, year, month);
 
-                const leaveAccrued = leaveTransaction ? leaveTransaction.leaveAccrued : 1.83;
-                const leaveUsed = leaveTransaction ? leaveTransaction.leaveUsed : 0;
-                const leaveBalance = leaveTransaction ? leaveTransaction.remainingLeave : leaveAccrued - leaveUsed;
-
-                // Fetch Activity details for the month
-                const startDate = moment(`${year}-${month}-01`).startOf('month').toDate();
-                const endDate = moment(`${year}-${month}-01`).endOf('month').toDate();
-
+                    const startDate = moment([year, month - 1]).startOf('month').format('YYYY-MM-DD');
+                    const endDate = moment([year, month - 1]).endOf('month').format('YYYY-MM-DD');
                 const activity = await Activity.findAll({
                     where: {
                         employeeId,
@@ -44,9 +31,10 @@ router.get('/employee/:employeeId/leave-summary/:year', async (req, res) => {
                 // Combine data for the summary
                 return {
                     month,
-                    leaveAccrued,
-                    leaveUsed,
-                    leaveBalance,
+                    paidLeaveBalance: leaveSummary.paidLeaveBalance,
+                    leaveUsedPaid: leaveSummary.congéDaysUsed + leaveSummary.unpaidLeave,
+                    leaveBalance: leaveSummary.leaveBalance,
+                    absentDays: leaveSummary.absentDays,
                     activityDetails: activity
                         ? {
                               status: activity.status || '--',
@@ -79,11 +67,9 @@ router.get('/employee/:employeeId/leave-summary/:year', async (req, res) => {
         res.status(500).send({ error: 'Internal Server Error' });
     }
 });
+*/
 
-
-
-module.exports = router;
-
+router.get('/employee/leave-summary/:employeeId/:year', getYearlySummaryLeaveByEmployeeId);
 
 
 module.exports = router;

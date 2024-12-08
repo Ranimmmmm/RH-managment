@@ -28,11 +28,6 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DATE,
             allowNull: true
         },
-        paidLeaveBalance: {
-            type: DataTypes.FLOAT,
-            allowNull: false,
-            defaultValue: 0  // Assuming all employees start with 0 days of paid leave
-        }
     }, {
         tableName: 'activities',
         modelName: 'activities' 

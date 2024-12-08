@@ -1,4 +1,4 @@
-const { Sequelize, DataTypes } = require('sequelize');
+const { Sequelize, DataTypes , Op  } = require('sequelize');
 const fs = require('fs');
 const path = require('path');
 
@@ -43,6 +43,6 @@ if ( db.Employee && db.Activity && db.LeaveTransaction) {
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
-
+db.Op = Op;
 module.exports = db;
 

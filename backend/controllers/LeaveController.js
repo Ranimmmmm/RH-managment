@@ -1,47 +1,59 @@
-const { sequelize } = require('../db'); // Assuming sequelize instance import
+const { LeaveTransaction } = require('../db');
 
-async function calculateLeaveDays(employeeId, year, month) {
-    const transaction = await sequelize.transaction();
+
+exports.getYearlySummaryLeaveByEmployeeId = async (req, res) => {
+    const { employeeId, year } = req.params;
+    if (!employeeId || !year) {
+        return res.status(400).json({ error: 'Employee ID and year are required' });
+    }
+
     try {
-        const startDate = moment([year, month - 1]).startOf('month').format('YYYY-MM-DD');
-        const endDate = moment([year, month - 1]).endOf('month').format('YYYY-MM-DD');
-        const activities = await Activity.findAll({
+
+        const transactions = await LeaveTransaction.findAll({
             where: {
                 employeeId: employeeId,
-                actionDate: { [Op.between]: [startDate, endDate] },
-                status: { [Op.or]: ['congé', 'absent'] }
-            }
-        }, { transaction });
-
-        let congéDaysUsed = 0;
-        let absentDays = 0;
-        activities.forEach(activity => {
-            if (activity.status === 'congé') {
-                congéDaysUsed++;
-            } else if (activity.status === 'absent') {
-                absentDays++;
-            }
+                year: year,
+            },
+            order: [['month', 'ASC']],
         });
 
-        const leaveDaysAccrued = 1.83;
-        let leaveBalance = leaveDaysAccrued - congéDaysUsed;
-        let unpaidLeave = absentDays > leaveBalance ? absentDays - leaveBalance : 0;
-        leaveBalance = Math.max(0, leaveBalance - unpaidLeave);
+        if (transactions.length === 0) {
+            return res.status(404).json({ error: 'No transactions found for the specified year' });
+        }
 
-        await LeaveTransaction.create({
+        // Initialize yearly summary calculations
+        let totalPaidLeaveBalance = 0;
+        let totalLeaveUsedPaid = 0;
+        let totalLeaveUsedUnpaid = 0;
+        let finalRemainingPaidLeave = 0;
+
+        // Iterate through transactions to calculate yearly totals
+        transactions.forEach(transaction => {
+            totalPaidLeaveBalance += 1.83 || 0;
+            totalLeaveUsedPaid += transaction.leaveUsedPaid || 0;
+            totalLeaveUsedUnpaid += transaction.leaveUsedUnpaid || 0;
+            finalRemainingPaidLeave = transaction.remainingPaidLeave || 0;
+        });
+
+        const yearlySummary = {
             employeeId: employeeId,
-            date: moment(endDate).endOf('month').toDate(),
-            leaveAccrued: leaveDaysAccrued,
-            leaveUsed: congéDaysUsed + unpaidLeave,
-            leaveBalance: leaveBalance
-        }, { transaction });
+            year: year,
+            totalPaidLeaveBalance,
+            totalLeaveUsedPaid,
+            totalLeaveUsedUnpaid,
+            finalRemainingPaidLeave,
+        };
 
-        await transaction.commit();
-
-        return { leaveDaysAccrued, congéDaysUsed, absentDays, unpaidLeave, leaveBalance };
+        res.json({
+            // transactions,
+            yearlySummary,
+        });
     } catch (error) {
-        await transaction.rollback();
-        console.error("Error calculating leave days:", error);
-        throw error; // Re-throw the error after rollback
+        console.error('Error retrieving yearly summary:', error);
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
     }
+
+
 }
+
+

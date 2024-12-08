@@ -44,7 +44,8 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 //static Folder
-app.use('/files', express.static(path.join(__dirname, 'files')));
+app.use("/media", express.static("public"));
+app.use("/profiles", express.static("public/images/profiles"));
 // Import your route handlers
 const authentificationRoutes = require('./routes/authentificationRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
