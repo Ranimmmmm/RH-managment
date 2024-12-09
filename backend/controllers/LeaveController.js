@@ -57,7 +57,8 @@ const getYearlySummaryLeaveByEmployeeId = async (req, res) => {
 }
 
 const getLeaveSummaryByDate = async (req, res) => {
-    const { month, year } = req.params;
+    const {month} = req.query;
+    const {  employeeId , year } = req.params;
     if (!month || !year) {
         return res.status(400).json({ error: 'month and year are required' });
     }
