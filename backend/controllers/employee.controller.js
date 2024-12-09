@@ -79,57 +79,49 @@ const updateEmployee = async (req, res) => {
   try {
     const { prenom, nom, email, numerodetel, fonction } = req.body;
 
-    const profileImage = req.files['profile_image']
+    // Extract files from the request
+    const profileImage = req.files?.['profile_image']
       ? req.files['profile_image'][0].filename
       : null;
-      
-    const filesArray = req.files['files']
-      ? req.files['files'].map(file => `${process.env.BASE_URL}/profiles/${file.filename}`)
+
+    const filesArray = req.files?.['files']
+      ? req.files['files'].map(file => `${process.env.BASE_URL}/files/${file.filename}`)
       : null;
 
+    // Fetch the employee record
     const employee = await Employee.findByPk(req.params.id);
-    console.log('-----------------Employee--------------------------/n', employee)
+
     if (!employee) {
       return res.status(404).json({
         message: 'Employee not found',
-        success: false
+        success: false,
       });
     }
-    else {
-      const updatedEmployee = await employee.update(
-        prenom || employee.prenom,
-        nom || employee.nom,
-        email || employee.email,
-        numerodetel || employee.numerodetel,
-        fonction || employee.fonction,
-        profileImage
-          ? `${process.env.BASE_URL}/profiles/${profileImage}`
-          : employee.profile_image,
-        filesArray
-          ? filesArray : employee.files);
 
-      res.json({
-        message: 'Employee Updated',
-        success: true,
-        data: updatedEmployee,
-      });
-    }
-    /*if (employee) {
-      const updatedData = {
-        prenom: prenom || employee.prenom,
-        nom: nom || employee.nom,
-        email: email || employee.email,
-        numerodetel: numerodetel || employee.numerodetel,
-        fonction: fonction || employee.fonction,
-        file: file || employee.file,
-      };
+    // Prepare updated fields
+    const updatedData = {
+      prenom: prenom || employee.prenom,
+      nom: nom || employee.nom,
+      email: email || employee.email,
+      numerodetel: numerodetel || employee.numerodetel,
+      fonction: fonction || employee.fonction,
+      profile_image: profileImage
+        ? `${process.env.BASE_URL}/profiles/${profileImage}`
+        : employee.profile_image,
+      files: filesArray || employee.files,
+    };
 
-      const updatedEmployee = await employee.update(updatedData);*/
+    // Update the employee record
+    const updatedEmployee = await employee.update(updatedData);
 
-    console.log(updatedEmployee)
+    res.json({
+      message: 'Employee updated successfully',
+      success: true,
+      data: updatedEmployee,
+    });
   } catch (err) {
     console.error('Error updating employee:', err);
-    res.status(500).send({
+    res.status(500).json({
       error: 'Internal Server Error',
       message: err.message,
     });

@@ -1,7 +1,7 @@
 const { LeaveTransaction } = require('../db');
 
 
-exports.getYearlySummaryLeaveByEmployeeId = async (req, res) => {
+const getYearlySummaryLeaveByEmployeeId = async (req, res) => {
     const { employeeId, year } = req.params;
     if (!employeeId || !year) {
         return res.status(400).json({ error: 'Employee ID and year are required' });
@@ -56,4 +56,39 @@ exports.getYearlySummaryLeaveByEmployeeId = async (req, res) => {
 
 }
 
+const getLeaveSummaryByDate = async (req, res) => {
+    const { month, year } = req.params;
+    if (!month || !year) {
+        return res.status(400).json({ error: 'month and year are required' });
+    }
+
+    try {
+
+        const transactions = await LeaveTransaction.findAll({
+            where: {
+                month: month,
+                year: year,
+            },
+            order: [['month', 'ASC']],
+        });
+
+        if (transactions.length === 0) {
+            return res.status(404).json({ error: 'No transactions found ' });
+        }
+
+        res.json({
+            transactions,
+
+        });
+    } catch (error) {
+        console.error('Error retrieving monthly summary:', error);
+        res.status(500).json({ error: 'Internal Server Error', message: error.message });
+    }
+
+}
+
+module.exports = {
+    getYearlySummaryLeaveByEmployeeId,
+    getLeaveSummaryByDate
+};
 

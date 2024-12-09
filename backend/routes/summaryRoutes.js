@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {getYearlySummaryLeaveByEmployeeId} = require('../controllers/LeaveController');
+const leaveTransactionController = require('../controllers/LeaveController');
 
 /*router.get('/employee/:employeeId/leave-summary/:year', async (req, res) => {
     const { employeeId, year } = req.params;
@@ -69,7 +69,8 @@ const {getYearlySummaryLeaveByEmployeeId} = require('../controllers/LeaveControl
 });
 */
 
-router.get('/employee/leave-summary/:employeeId/:year', getYearlySummaryLeaveByEmployeeId);
+router.get('/yearly-summary/:employeeId/:year', leaveTransactionController.getYearlySummaryLeaveByEmployeeId);
 
+router.get('/monthly-summary/:month/:year', leaveTransactionController.getLeaveSummaryByDate);
 
 module.exports = router;
