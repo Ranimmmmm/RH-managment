@@ -43,10 +43,24 @@ const getYearlySummaryLeaveByEmployeeId = async (req, res) => {
             totalLeaveUsedUnpaid,
             finalRemainingPaidLeave,
         };
+        let monthlyBreakdown = [];
+        transactions.forEach(transaction => {
+         totalPaidLeaveBalance += 1.83 || 0;
+         totalLeaveUsedPaid += transaction.leaveUsedPaid || 0;
+         totalLeaveUsedUnpaid += transaction.leaveUsedUnpaid || 0;
+         finalRemainingPaidLeave = transaction.remainingPaidLeave || 0;
 
+        monthlyBreakdown.push({
+         month: transaction.month,
+         paidLeaveBalance: transaction.paidLeaveBalance,
+         usedPaidLeave: transaction.leaveUsedPaid,
+         usedUnpaidLeave: transaction.leaveUsedUnpaid,
+         remainingPaidLeave: transaction.remainingPaidLeave
+        });
+     });
         res.json({
-            // transactions,
             yearlySummary,
+            monthlyBreakdown
         });
     } catch (error) {
         console.error('Error retrieving yearly summary:', error);
@@ -56,37 +70,31 @@ const getYearlySummaryLeaveByEmployeeId = async (req, res) => {
 
 }
 
-const getLeaveSummaryByDate = async (req, res) => {
-    const {month} = req.query;
-    const {  employeeId , year } = req.params;
-    if (!month || !year) {
-        return res.status(400).json({ error: 'month and year are required' });
+const getLeaveSummaryByDate = async (req, res) => { 
+    const {employeeId , month, year } = req.params;
+    if (!employeeId || !year || !month) {
+        return res.status(400).json({ error: 'Employee ID and year are required' });
     }
-
     try {
-
         const transactions = await LeaveTransaction.findAll({
             where: {
-                month: month,
-                year: year,
+                month: monthNumber,
+                year: yearNumber,
             },
             order: [['month', 'ASC']],
         });
-
+  
         if (transactions.length === 0) {
-            return res.status(404).json({ error: 'No transactions found ' });
+            return res.status(404).json({ error: 'No transactions found' });
         }
-
-        res.json({
-            transactions,
-
-        });
+        console.log('***************' , transactions);
+        res.json({ transactions });
     } catch (error) {
         console.error('Error retrieving monthly summary:', error);
         res.status(500).json({ error: 'Internal Server Error', message: error.message });
     }
-
 }
+
 
 module.exports = {
     getYearlySummaryLeaveByEmployeeId,

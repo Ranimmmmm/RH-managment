@@ -87,7 +87,7 @@ exports.saveActivity = async(req, res)=>{
                 });
             }
 
-            const leaveUsedPaid = await Activity.sum('numberOfMissions', {
+            const leaveUsedPaid = await Activity.count( {
                 where: {
                     employeeId: employeeId,
                     status: 'congé',
@@ -101,7 +101,7 @@ exports.saveActivity = async(req, res)=>{
             const updatedLeaveUsedPaid = Math.min(leaveUsedPaid, leaveTransaction.paidLeaveBalance);
             const updatedLeaveUsedUnpaid = Math.max(leaveUsedPaid - leaveTransaction.paidLeaveBalance, 0);
             const updatedRemainingPaidLeave = leaveTransaction.paidLeaveBalance - updatedLeaveUsedPaid;
-    
+            console.log('****************paidleavebalance', leaveTransaction.paidLeaveBalance)
             await leaveTransaction.update({
                 leaveUsedPaid: updatedLeaveUsedPaid,
                 leaveUsedUnpaid: updatedLeaveUsedUnpaid,
@@ -114,6 +114,9 @@ exports.saveActivity = async(req, res)=>{
                 newActivity,
                 leaveTransaction,
             });
+            console.log("********************", newActivity);
+            console.log("********************", leaveTransaction);
+
     } catch ( error) {
         console.error('Failed to save or update activity:', error);
         res.status(500).send({ error: 'Internal Server Error', message: error.message });
@@ -150,7 +153,6 @@ exports.getEmployeesActivityByEmployeeId = async (req, res) => {
                     inTime: activity.inTime,
                     outTime: activity.outTime,
                     numberOfMissions: activity.numberOfMissions,
-                    paidLeaveBalance: activity.paidLeaveBalance,
                     updatedAt: activity.updatedAt,
                 };
             }
@@ -171,7 +173,6 @@ exports.getEmployeesActivityByEmployeeId = async (req, res) => {
                     inTime: '--',
                     outTime: '--',
                     numberOfMissions: 0,
-                    paidLeaveBalance: 0,
                 });
             }
         }

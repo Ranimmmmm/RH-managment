@@ -28,6 +28,10 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DATE,
             allowNull: true
         },
+        /* publicHolidayId: {
+            type: DataTypes.INTEGER,
+            allowNull: true, 
+        }, */
     }, {
         tableName: 'activities',
         modelName: 'activities' 

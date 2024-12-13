@@ -118,7 +118,7 @@ const updateEmployee = async (req, res) => {
       message: 'Employee updated successfully',
       success: true,
       data: updatedEmployee,
-    });
+    }); console.log('************: data' , data);
   } catch (err) {
     console.error('Error updating employee:', err);
     res.status(500).json({

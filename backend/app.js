@@ -6,6 +6,9 @@ const passport = require('passport');
 const path = require('path');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const session = require('express-session');
+require('./cron/holidayScheduler');
+
+
 const dotenv = require ('dotenv').config();
 const app = express();
 app.use(express.json({ limit: '10mb', extended: true }));
@@ -51,12 +54,15 @@ const authentificationRoutes = require('./routes/authentificationRoutes');
 const employeeRoutes = require('./routes/employeeRoutes');
 const activityRoutes = require('./routes/activityRoutes');
 const summaryRoutes = require ('./routes/summaryRoutes')
+const publicHolidayRoutes = require('./routes/publicHolidayRoutes')
 
 // Use your routes
 app.use('/users', authentificationRoutes)
 app.use('/employees', employeeRoutes);
 app.use('/activities', activityRoutes);
 app.use('/employee-summary', summaryRoutes);
+app.use('/public-holidays', publicHolidayRoutes);
+
 // Define authentication routes
 app.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
@@ -67,6 +73,14 @@ app.get('/auth/google/callback',
     res.redirect('/');
   });
 
+  /* cron.schedule('0 08 * * *', async () => {
+    try {
+      const response = await axios.get('http://localhost:3000/public-holidays/check-holiday');
+      console.log('**response is',response.data.message);
+    } catch (error) {
+      console.error('Error checking holidays:', error.message);
+    }
+  }); */
 const PORT = process.env.PORT || 3000;
 
 // Ensure the database is set up before listening

@@ -50,9 +50,9 @@ module.exports = (sequelize, DataTypes) => {
         throw new Error('Employee not found');
       }
 
-      const currentDate = new Date();
-    const currentMonth = currentDate.getMonth() + 1; 
-    const currentYear = currentDate.getFullYear();
+     const currentDate = new Date();
+     const currentMonth = currentDate.getMonth() + 1; 
+     const currentYear = currentDate.getFullYear();
 
       if (leaveTransaction.year == currentYear && leaveTransaction.month == 1) {
         leaveTransaction.paidLeaveBalance = 1.83;
@@ -78,7 +78,7 @@ module.exports = (sequelize, DataTypes) => {
          // leaveTransaction.unpaidLeaveBalance = 0; 
       }
 
-      const leaveUsedPaid = await Activity.sum('paidLeaveBalance', {
+      const leaveUsedPaid = await Activity.sum('status', {
         where: {
           employeeId: leaveTransaction.employeeId,
           status: 'congé',
