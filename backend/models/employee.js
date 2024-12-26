@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
         },
         profile_image: {
             type: DataTypes.STRING,
-            default: '',
+            defaultValue: '',
         },
         files: {
             type: DataTypes.JSON, 

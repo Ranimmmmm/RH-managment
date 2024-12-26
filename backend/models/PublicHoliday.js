@@ -3,6 +3,11 @@ const { Op } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
     const PublicHoliday = sequelize.define('PublicHoliday', {
+        id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true,
+        },
         name: {
             type: DataTypes.STRING,
             allowNull: false,
@@ -16,9 +21,13 @@ module.exports = (sequelize, DataTypes) => {
             defaultValue: 1,
             allowNull: false,
         },
-        isVariable: {
-            type: DataTypes.BOOLEAN, // Whether the holiday's date changes every year
-            defaultValue: false,
+        type: {
+            type: DataTypes.ENUM('fix payé', 'fix non payé', 'variable payé'),
+            allowNull: false,
+        },
+        status: {
+            type: DataTypes.STRING, // Examples: 'férié', 'congé'
+            allowNull: false,
         },
     }, {
         tableName: 'public_holidays',

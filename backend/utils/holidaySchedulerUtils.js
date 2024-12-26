@@ -12,17 +12,17 @@ const checkAndMarkHolidaysForNextWeek = async () => {
         const nextFriday = moment(nextMonday).add(4, 'days').format('YYYY-MM-DD');
 
         console.log('Checking for holidays between:', nextMonday, 'and', nextFriday);
-        
+
         const holidays = await PublicHoliday.findAll({
-            where: { 
-                date: { 
-                    [Op.between]: [nextMonday, nextFriday] 
-                } 
-            },
+            where: { date: { [Op.between]: [nextMonday, nextFriday] } },
         });
+
+        console.log('Holidays found:', holidays);
 
         if (holidays.length > 0) {
             const employees = await Employee.findAll();
+            console.log('Employees fetched:', employees);
+
             const activities = holidays.flatMap(holiday => 
                 employees.map(employee => ({
                     employeeId: employee.id,
@@ -34,6 +34,8 @@ const checkAndMarkHolidaysForNextWeek = async () => {
                 }))
             );
 
+            console.log('Activities to be created:', activities);
+
             await Activity.bulkCreate(activities, { ignoreDuplicates: true });
 
             console.log(`Holidays set for employees on these dates: ${holidays.map(h => h.date).join(', ')}`);
@@ -42,9 +44,9 @@ const checkAndMarkHolidaysForNextWeek = async () => {
         }
     } catch (error) {
         console.error('Error checking and marking holidays for next week:', error);
-        throw error;
     }
 };
+
 const createHolidayActivities = async (date, status) => {
     try {
         const employees = await Employee.findAll();

@@ -31,9 +31,10 @@ const createEmployee = async (req, res) => {
   try {
     const { prenom, nom, email, numerodetel, fonction } = req.body;
 
-    const profileImage = req.files['profile_image']
-      ? req.files['profile_image'][0].filename
-      : null;
+    const profileImage = req.files?.['profile_image']
+    ? `${process.env.BASE_URL}/images/profiles/${req.files['profile_image'][0].filename}`
+    : `https://ui-avatars.com/api/?name=${prenom}&background=2F4F4F&color=fff&size=128`;
+  
 
     const filesArray = req.files['files']
       ? req.files['files'].map(file => `${process.env.BASE_URL}/profiles/${file.filename}`)
@@ -53,9 +54,7 @@ const createEmployee = async (req, res) => {
       email,
       numerodetel,
       fonction,
-      profile_image: profileImage
-        ? `${process.env.BASE_URL}/profiles/${profileImage}`
-        : null,
+      profile_image: profileImage,
       files: filesArray,
     });
 
@@ -64,6 +63,11 @@ const createEmployee = async (req, res) => {
     res.status(201).json({
       message: 'Employee Created',
       success: true,
+      id: emp.save.id,
+      prenom: emp.save.prenom,
+      nom: emp.save.nom,
+      email: emp.save.email,
+      profile_image: emp.save.profile_image,
     });
   } catch (err) {
     console.error('Error:', err);
@@ -118,7 +122,7 @@ const updateEmployee = async (req, res) => {
       message: 'Employee updated successfully',
       success: true,
       data: updatedEmployee,
-    }); console.log('************: data' , data);
+    }); 
   } catch (err) {
     console.error('Error updating employee:', err);
     res.status(500).json({

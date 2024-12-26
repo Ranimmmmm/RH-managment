@@ -3,6 +3,7 @@ const { checkAndMarkHolidaysForNextWeek, createHolidayActivities } = require('..
 
 // Schedule 1: Runs every Sunday at 08:00 AM to check for holidays in the next week
 cron.schedule('0 8 * * 0', async () => { 
+    console.log('Cron job for checking holidays started...');
     try {
         await checkAndMarkHolidaysForNextWeek();
         console.log('Holiday check for next week completed successfully.');
@@ -20,7 +21,7 @@ cron.schedule('0 0 1 1 *', async () => {
             { date: `${currentYear}-04-09`, status: 'congé' },
         ];
 
-        for (const holiday of defaultHolidays) {
+        for (const holiday of holidays) {
             await createHolidayActivities(holiday.date, holiday.status);
         }
 

@@ -8,6 +8,7 @@ const { sequelize } = require('../db');
 
 exports.getemployeesActivityByDate = async (req, res) => {
     const { date } = req.query;
+    
     if (!date) {
         return res.status(400).send({ error: 'Date parameter is required.' });
     }
@@ -77,7 +78,11 @@ exports.saveActivity = async(req, res)=>{
             let leaveTransaction = await LeaveTransaction.findOne({
                 where: { employeeId: employeeId, month: transactionMonth, year: transactionYear }
             });
-
+            if (status === "congé" && type === 'fix non payé') {
+                await leaveTransaction.update({
+                    leaveUsedPaid: sequelize.literal('leaveUsedPaid +1'),
+                }, {where: {employeeId: employeeId},});
+            }
             if (!leaveTransaction) {
                 leaveTransaction = await LeaveTransaction.create({
                     employeeId: employeeId,
@@ -180,6 +185,47 @@ exports.getEmployeesActivityByEmployeeId = async (req, res) => {
         res.json(activitiesByDayArray);
     } catch (error) {
         console.error('Failed to retrieve activities grouped by day:', error); // Log the error message
+        res.status(500).send({ error: 'Internal Server Error' });
+    }
+} 
+
+exports.getAllActivities = async (req, res) => {
+    const { months, years, employeeId, statuses } = req.query;
+
+    const whereClause = {};
+
+    // Filter by months and years
+    if (months && years) {
+        const monthArray = months.split(","); // Allow multiple months (e.g., "01,02,03")
+        const yearArray = years.split(",");   // Allow multiple years (e.g., "2023,2024")
+
+        const dateRanges = [];
+
+        for (const year of yearArray) {
+            for (const month of monthArray) {
+                const startDate = moment(`${year}-${month}-01`, "YYYY-MM-DD").startOf('month').toDate();
+                const endDate = moment(startDate).endOf('month').toDate();
+                dateRanges.push({ [Op.between]: [startDate, endDate] });
+            }
+        }
+
+        whereClause.actionDate = { [Op.or]: dateRanges };
+    }
+
+    // Filter by employeeId
+    if (employeeId) {
+        whereClause.employeeId = employeeId;
+    }
+
+    try {
+        const activities = await Activity.findAll({
+            where: whereClause,
+            order: [['actionDate', 'DESC']],
+        });
+
+        res.json(activities);
+    } catch (error) {
+        console.error('Failed to retrieve activities:', error);
         res.status(500).send({ error: 'Internal Server Error' });
     }
 }

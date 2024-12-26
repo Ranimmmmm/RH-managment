@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const {getemployeesActivityByDate,saveActivity, getEmployeesActivityByEmployeeId} = require('../controllers/activity.controller');
+const activityController = require('../controllers/activityController')
 
-router.get('/getbyDate', getemployeesActivityByDate);
+router.get('/getbyDate', activityController.getemployeesActivityByDate);
 
-router.post('/save', saveActivity);
+router.post('/save', activityController.saveActivity);
 
-router.get('/employee/:employeeId/:year/:month', getEmployeesActivityByEmployeeId);
+router.get('/employee/:employeeId/:year/:month', activityController.getEmployeesActivityByEmployeeId);
 
+router.get('/', activityController.getAllActivities);
 module.exports = router;
