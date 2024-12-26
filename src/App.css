@@ -9,83 +9,74 @@ body {
   font-family: Arial, sans-serif;
   color: #333;
   line-height: 1.6;
+  overflow: hidden; /* Remove accidental scrolling */
+}
+
+html, body {
+  height: 100%; /* Use the full height */
+  width: 100%; /* Use the full width */
+  overflow: hidden; /* Prevent scrolling outside the viewport */
 }
 
 /* Main app container */
 .App {
   display: flex;
-  min-height: 100vh;
-  width: 100%; /* Ensure full width */
-}
-.logo-container {
-  padding: 10px; 
-  border-bottom: 1px solid #ccc;  
+  flex-direction: row; /* Sidebar and content side-by-side */
+  height: 100vh; /* Full screen height */
+  width: 100vw; /* Full screen width */
 }
 
-/* Sidebar basic styling */
+/* Sidebar styling */
 .sidebar {
   position: fixed;
-  padding: 20px;
-  left: 0;
-  top: 0;
   width: 240px;
-  height: 100vh;
-  background-color: #fff3f3;
-  overflow-y: auto;
+  height: 100%;
+  background-color: #ffffff;
+  overflow-y: auto; /* Scrollable sidebar */
   z-index: 1000;
-  color: #000000;
-  padding: 50px 10px 40px 10px; /* Top, Right, Bottom, Left */
+  padding: 50px 10px 40px 10px;
+  transition: width 0.3s ease;
 }
 
 /* Content area */
 .content {
-  margin-left: 240px;
+  flex: 1;
+  margin-left: 240px; /* Leave space for the sidebar */
   padding: 20px;
-  background-color: #fff;
-  min-height: 100vh;
+  background-color: #fafafa;
+  overflow-y: auto; /* Allow vertical scrolling */
+  overflow-x: hidden; /* Prevent horizontal scrolling */
+  height: 100%; /* Ensure it fills the remaining height */
+  width: calc(100vw - 240px); /* Dynamically adjust based on sidebar */
 }
 
-
-
-/* Main content styles */
-.content {
-  margin-left: 250px; /* Same as the sidebar's width */
-  padding: 20px; /* Padding for content readability */
-  width: calc(100% - 250px); /* Adjusts width to take remaining space */
-  min-height: 100vh; /* Minimum height */
-  transition: margin-left 0.3s ease; /* Smooth transition for margin */
+/* Table container */
+.table-container {
+  width: 100%;
+  height: calc(100vh - 150px); /* Leave space for other content */
+  overflow-x: auto; /* Allow horizontal scrolling for tables */
+  overflow-y: auto; /* Allow vertical scrolling if needed */
 }
 
-h2 {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #1a73e8;
-}
-
-.error-message {
-  color: #d93025;
-  text-align: center;
-  margin-top: 10px;
-}
-
-
+/* Responsive styles */
 @media (max-width: 768px) {
   .sidebar {
-      width: 100px;
+    width: 100px; /* Reduce sidebar width */
   }
+
   .content {
-      margin-block: 100px;
+    margin-left: 100px; /* Adjust content area */
+    width: calc(100vw - 100px);
   }
 }
 
 @media (max-width: 480px) {
   .sidebar {
-      width: 60%;
-      padding: 10px 0; /* Only top and bottom padding */
+    width: 60px; /* Minimal sidebar for small screens */
   }
+
   .content {
-      margin: 0;
-      padding: 10px;
+    margin-left: 60px;
+    width: calc(100vw - 60px);
   }
 }
-

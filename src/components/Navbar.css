@@ -1,0 +1,59 @@
+/* Navbar Styles */
+.navbar {
+ background-color: #777b80;
+ color: #fff;
+  position: fixed;
+  top: 0;
+  left: 250px; /* Update this line */
+  right: 0;
+ z-index: 1030;
+}
+ 
+ .nav-link {
+  color: #fff;
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+ }
+ 
+ .nav-link:hover {
+   background-color: rgba(255, 255, 255, 0.1);
+ }
+ .nav-link span {
+    color: #fff;
+    font-size: 1rem;
+    margin-left: 0.5rem;
+  }
+ 
+ .search-bar {
+  display: flex;
+  align-items: center;
+ }
+ 
+ .search-bar .form-control {
+  width: 200px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: #fff;
+ }
+ 
+ .search-bar .form-control::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+ }
+ 
+ .search-bar .btn {
+  background-color: #fff;
+  color: #4285f4;
+  border: none;
+ }
+ 
+ .search-bar .btn:hover {
+  background-color: #e6e6e6;
+ }
+ .nav-link {
+    color: #fff;
+    font-size: 1.2rem;
+    margin-left: 1rem;
+  }
+ .nav-link i {
+    font-size: 1.2rem;
+  }

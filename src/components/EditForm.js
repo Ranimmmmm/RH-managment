@@ -3,35 +3,35 @@ import { Modal, Button, Form } from 'react-bootstrap';
 
 function EditEmployeeModal({ show, handleClose, employee, handleSave, isEditing }) {
   const [formData, setFormData] = useState({
-    prénom: '',
+    prenom: '',
     nom: '',
     email: '',
-    numérodetèl: '',
+    numerodetel: '',
     fonction: '',
-    file: null,
+    files: null,
     filePreview: null
   });
 
   useEffect(() => {
     if (employee) {
       setFormData({
-        prénom: employee.prénom || '',
+        prenom: employee.prenom || '',
         nom: employee.nom || '',
         email: employee.email || '',
-        numérodetèl: employee.numérodetèl || '',
+        numerodetel: employee.numerodetel || '',
         fonction: employee.fonction || '',
-        file: null,
-        filePreview: null
+        files: null,
+        filePreview: employee.profile_image || `https://ui-avatars.com/api/?name=${employee.prenom || 'U'}+${employee.nom || 'U'}&background=2F4F4F&color=fff&size=128`
       });
     } else {
       // Reset form when adding new employee
       setFormData({
-        prénom: '',
+        prenom: '',
         nom: '',
         email: '',
-        numérodetèl: '',
+        numerodetel: '',
         fonction: '',
-        file: null,
+        files: null,
         filePreview: null
       });
     }
@@ -45,19 +45,19 @@ function EditEmployeeModal({ show, handleClose, employee, handleSave, isEditing 
         alert('Please upload an image (JPG, PNG) or a PDF file.');
         setFormData(prev => ({
           ...prev,
-          file: null,
+          files: null,
           filePreview: null
         }));
         return;
       }
       setFormData(prev => ({
         ...prev,
-        file: file,
+        files: file,
         filePreview: URL.createObjectURL(file)
       }));
     }
   };
-
+  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -66,63 +66,89 @@ function EditEmployeeModal({ show, handleClose, employee, handleSave, isEditing 
     }));
   };
 
-  const onSave = () => {
-    const submitFormData = new FormData();
-    submitFormData.append('prénom', formData.prénom);
-    submitFormData.append('nom', formData.nom);
-    submitFormData.append('email', formData.email);
-    submitFormData.append('numérodetèl', formData.numérodetèl);
-    submitFormData.append('fonction', formData.fonction);
-    if (formData.file) {
-      submitFormData.append('file', formData.file);
+  const onSave = async (e) => {
+    if (e) {
+      e.preventDefault();
     }
-    handleSave(submitFormData, isEditing ? employee.id : null);
+
+    try {
+      // Basic validation
+      if (!formData.prenom.trim() || !formData.nom.trim() || !formData.email.trim()) {
+        alert('Please fill in all required fields');
+        return;
+      }
+
+      const submitFormData = new FormData();
+      submitFormData.append('prenom', formData.prenom.trim());
+      submitFormData.append('nom', formData.nom.trim());
+      submitFormData.append('email', formData.email.trim());
+      submitFormData.append('numerodetel', formData.numerodetel.trim());
+      submitFormData.append('fonction', formData.fonction.trim());
+      submitFormData.append('profile_image', formData.files);
+
+      if (isEditing) {
+        // Update existing employee
+        await handleSave(submitFormData, employee.id);
+      } else {
+        // Add new employee
+        await handleSave(submitFormData);
+      }
+      
+      // Only close if save was successful
+      handleClose();
+    } catch (error) {
+      console.error('Error saving employee:', error);
+      alert('Error saving employee. Please try again.');
+    }
   };
 
   return (
     <Modal show={show} onHide={handleClose}>
-      <Modal.Header closeButton>
-        <Modal.Title>{isEditing ? 'Modifier l\'employé' : 'Ajouter un employé'}</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <Form>
-          <Form.Group controlId="formFirstName">
-            <Form.Label>Prénom</Form.Label>
+      <Form onSubmit={onSave}>
+        <Modal.Header closeButton>
+          <Modal.Title>{isEditing ? 'Modifier l\'employé' : 'Ajouter un employé'}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form.Group controlId="formFirstName" className="mb-3">
+            <Form.Label>Prénom*</Form.Label>
             <Form.Control
               type="text"
-              name="prénom"
-              value={formData.prénom}
+              name="prenom"
+              value={formData.prenom}
               onChange={handleInputChange}
+              required
             />
           </Form.Group>
-          <Form.Group controlId="formLastName">
-            <Form.Label>Nom</Form.Label>
+          <Form.Group controlId="formLastName" className="mb-3">
+            <Form.Label>Nom*</Form.Label>
             <Form.Control
               type="text"
               name="nom"
               value={formData.nom}
               onChange={handleInputChange}
+              required
             />
           </Form.Group>
-          <Form.Group controlId="formEmail">
-            <Form.Label>Email</Form.Label>
+          <Form.Group controlId="formEmail" className="mb-3">
+            <Form.Label>Email*</Form.Label>
             <Form.Control
               type="email"
               name="email"
               value={formData.email}
               onChange={handleInputChange}
+              required
             />
           </Form.Group>
-          <Form.Group controlId="formPhone">
+          <Form.Group controlId="formPhone" className="mb-3">
             <Form.Label>Numéro de Tél</Form.Label>
             <Form.Control
               type="text"
-              name="numérodetèl"
-              value={formData.numérodetèl}
+              name="numerodetel"
+              value={formData.numerodetel}
               onChange={handleInputChange}
             />
           </Form.Group>
-          <Form.Group controlId="formFunction">
+          <Form.Group controlId="formFunction" className="mb-3">
             <Form.Label>Fonction</Form.Label>
             <Form.Control
               type="text"
@@ -132,30 +158,28 @@ function EditEmployeeModal({ show, handleClose, employee, handleSave, isEditing 
             />
           </Form.Group>
           <Form.Group controlId="formFile" className="mb-3">
-            <Form.Label>Ajouter Document</Form.Label>
+            <Form.Label>Photo de profile</Form.Label>
             <Form.Control type="file" onChange={handleFileChange} />
             {formData.filePreview && (
               <div style={{ marginTop: '10px' }}>
-                {formData.file && formData.file.type.includes('image/') ? (
-                  <img src={formData.filePreview} alt="Preview" style={{ width: '20%' }} />
-                ) : (
-                  <a href={formData.filePreview} target="_blank" rel="noopener noreferrer">
-                    Preview PDF
-                  </a>
-                )}
+                <img 
+                  src={formData.filePreview} 
+                  alt="Preview" 
+                  style={{ width: '20%', borderRadius: '50%' }} 
+                />
               </div>
             )}
           </Form.Group>
-        </Form>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={handleClose}>
-          Fermer
-        </Button>
-        <Button variant="primary" onClick={onSave}>
-          {isEditing ? 'Sauvegarder' : 'Ajouter'}
-        </Button>
-      </Modal.Footer>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleClose}>
+            Fermer
+          </Button>
+          <Button variant="primary" type="submit">
+            {isEditing ? 'Sauvegarder' : 'Ajouter'}
+          </Button>
+        </Modal.Footer>
+      </Form>
     </Modal>
   );
 }

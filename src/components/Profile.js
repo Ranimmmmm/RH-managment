@@ -1,256 +1,245 @@
-import React, { useEffect, useState , useCallback} from 'react';
-import { useParams } from 'react-router-dom';
-import axios from 'axios';
-import moment from 'moment';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import React, { useState, useEffect, useCallback } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import axios from "axios";
+import Calendar from "./Calendar";
+import "./Profile.css";
+import Sidebar from "./SideBar";
+import { StatisticsCard } from "./StatisticsCard";
+
 export default function EmployeeProfile() {
-    const { employeeId } = useParams();
-    const [activities, setActivities] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [isJournalVisible, setIsJournalVisible] = useState(false);
+  const { employeeId } = useParams();
+  const navigate = useNavigate();
+  const [employeeDetails, setEmployeeDetails] = useState(null);
+  const [activities, setActivities] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [month, setMonth] = useState(new Date().getMonth() + 1);
+  const [year, setYear] = useState(new Date().getFullYear());
+  const [statistics, setStatistics] = useState(null);
+  const handleDataFetched = useCallback((data) => {
+    setStatistics(data);
+  }, []);
+  const handleViewDetails = () => {
+    navigate(`/employee/${employeeId}/details`);
+  };
+  // Reusable function to handle API calls
+  const fetchData = async (url, callback) => {
+    try {
+      const response = await axios.get(url);
+      callback(response.data);
+    } catch (err) {
+      console.error(`Error fetching data from ${url}:`, err);
+      setError("Échec de la récupération des données.");
+    }
+  };
 
-    
-    // State for start and end dates
-    const [startDate, setStartDate] = useState(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
-    const [endDate, setEndDate] = useState(new Date());
+  // Fetch Employee Details
+  const fetchEmployeeDetails = useCallback(() => {
+    fetchData(`http://localhost:3000/employees/${employeeId}`, setEmployeeDetails);
+  }, [employeeId]);
 
-    // Fetch activities within a date range
-    const fetchActivitiesByDateRange = useCallback(() => {
-        if (employeeId && startDate && endDate) {
-            setLoading(true);
-            const formattedStartDate = moment(startDate).format('YYYY-MM-DD');
-            const formattedEndDate = moment(endDate).format('YYYY-MM-DD');
+  // Fetch Employee Activities
+  const fetchActivities = useCallback(() => {
+    fetch(`http://localhost:3000/activities/employee/${employeeId}/${year}/${month}`)
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("Fetched activities:", data);
+        setActivities(data);
+      })
+      .catch((err) => {
+        console.error("Error fetching activities:", err);
+        setError("Failed to load activities.");
+      });
+  }, [employeeId, year, month]);
+  // Fetch Leave Summary
+  /* const fetchLeaveSummary = useCallback(async () => {
+    try {
+      // Call the new API route
+      const response = await axios.get(
+        `http://localhost:3000/employee-summary/yearly-summary/${employeeId}/${year}`
+      );
 
-            axios.get(`http://localhost:3000/activities/employee/${employeeId}/getByDateRange`, {
-                params: {
-                    startDate: formattedStartDate,
-                    endDate: formattedEndDate,
-                },
-            })
-            .then(response => {
-                const groupedActivities = response.data;
+      // Parse the response to update summaries and yearly summary
+      const { summaries, yearlySummary } = response.data;
+      
+      setLeaveSummaries(summaries);
+      setYearlySummary(yearlySummary);
+    } catch (err) {
+      console.error("Error fetching leave summary:", err);
+      setError("Échec de la récupération des résumés de congé.");
+    } finally {
+      setLoading(false);
+    }
+  }, [employeeId, year]); */
 
-                if (Array.isArray(groupedActivities)) {
-                    // Create a map of activities by date for easy lookup
-                    const activitiesMap = groupedActivities.reduce((acc, activity) => {
-                        const date = moment(activity.date).format('YYYY-MM-DD');
-                        acc[date] = activity;
-                        return acc;
-                    }, {});
 
-                    // Generate all dates within the range and fill in missing dates
-                    const dateRangeActivities = [];
-                    let currentDate = moment(startDate);
-
-                    while (currentDate.isSameOrBefore(endDate, 'day')) {
-                        const dateStr = currentDate.format('YYYY-MM-DD');
-                        if (activitiesMap[dateStr]) {
-                            dateRangeActivities.push(activitiesMap[dateStr]);
-                        } else {
-                            // Placeholder for dates with no activity
-                            dateRangeActivities.push({
-                                date: dateStr,
-                                inTime: '--',
-                                outTime: '--',
-                                status: 'No activity',
-                                numberOfMissions: 0
-                            });
-                        }
-                        currentDate = currentDate.add(1, 'day');
-                    }
-
-                    setActivities(dateRangeActivities);
-                } else {
-                    console.error("Expected an array, got:", groupedActivities);
-                    setActivities([]);
-                }
-                setLoading(false);
-            })
-            .catch(err => {
-                console.error("Error fetching data:", err);
-                setError('Failed to fetch data');
-                setLoading(false);
-            });
-        }
-    }, [employeeId, startDate, endDate]);
-
-    // Trigger fetch when employeeId, startDate, or endDate changes
-    useEffect(() => {
-        fetchActivitiesByDateRange();
-    }, [fetchActivitiesByDateRange]);
-
-    if (loading) return <LoadingSpinner />;
-    if (error) return <ErrorAlert message={error} />;
-    if (!activities.length) return <NoActivitiesAlert />;
-
-    const toggleJournalVisibility = () => {
-        setIsJournalVisible(!isJournalVisible);
+  // Fetch Employee Details and Activities on Component Mount
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        await Promise.all([fetchEmployeeDetails(), fetchActivities(), /* fetchLeaveSummary() */]);
+      } catch (err) {
+        console.error("Error fetching employee details, activities, or leave summaries:", err);
+        setError("Échec de la récupération des détails de l'employé, des activités ou des résumés de congé.");
+      } finally {
+        setLoading(false);
+      }
     };
+  
+    loadData();
+  }, [fetchEmployeeDetails, fetchActivities]);
+  
+   const handleMonthChange = (activeStartDate) => {
+    setYear(activeStartDate.getFullYear());
+    setMonth(activeStartDate.getMonth() + 1);
+  };
+  /* const handleBack = () => {
+    navigate("/employee/TeamActivity");
+  }; */
 
+  if (loading) return <div>Chargement...</div>;
+  if (error) return <div>Erreur: {error}</div>;
+  if (!statistics) {
     return (
-        <div className="container-fluid mt-4">
-            <DateRangeSelector startDate={startDate} endDate={endDate} setStartDate={setStartDate} setEndDate={setEndDate} />
-            <StatisticsCard statistics={calculateStatistics(activities)} />
-
-            <div className="text-center my-4">
-                <button className="btn btn-primary" onClick={toggleJournalVisibility}>
-                    {isJournalVisible ? "Hide Detailed Journal" : "Show Detailed Journal"}
-                </button>
-            </div>
-
-            {isJournalVisible && <ActivityLog activities={activities} />}
-        </div>
-    );
-}
-
-function DateRangeSelector({ startDate, endDate, setStartDate, setEndDate }) {
-    return (
-        <div className="date-range-selector mb-4">
-            <label>Date de début: </label>
-            <DatePicker
-                selected={startDate}
-                onChange={(date) => setStartDate(date)}
-                dateFormat="dd/MM/yyyy"
+        <>
+            <StatisticsCard
+                employeeId={employeeId}
+                year={year}
+                onDataFetched={handleDataFetched}
             />
-            <label className="ms-3">Date de fin: </label>
-            <DatePicker
-                selected={endDate}
-                onChange={(date) => setEndDate(date)}
-                dateFormat="dd/MM/yyyy"
-            />
-        </div>
+            <p>Loading...</p>
+        </>
     );
 }
 
+//const {  yearlySummary, monthlyBreakdown } = statistics;
 
-function LoadingSpinner() {
-    return (
-        <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: '200px' }}>
-            <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Chargement...</span>
+
+  
+return (
+  <div className="main-container">
+    {/* Main Container with Margin */}
+    <div className="container-fluid" style={{ padding: '30px 100px' }}>
+      {/* Sidebar */}
+      <Sidebar />
+
+      <div className="row">
+  {/* Employee Details Card */}
+  <div className="col-md-3">
+    <div className="card shadow-sm mb-4">
+      <div className="card-body">
+        <div className="employee-header d-flex align-items-center mb-3">
+          {employeeDetails ? (
+            <>
+              <img
+                src={employeeDetails.profile_image}
+                alt="employee"
+                className="rounded-circle mr-3"
+                width="45"
+                height="45"
+              />
+              <div>
+                <h5 className="mb-0">
+                  {employeeDetails.prenom} {employeeDetails.nom}
+                </h5>
+                <span className="text-success font-weight-bold">
+                  {employeeDetails.status ?? 'Active'}
+                </span>
+              </div>
+            </>
+          ) : (
+            <p>Aucun détail disponible.</p>
+          )}
+        </div>
+        {employeeDetails ? (
+          <ul className="list-group list-group-flush">
+            <li className="list-group-item">
+              <strong>Email:</strong> {employeeDetails.email}
+            </li>
+            <li className="list-group-item">
+              <strong>Numéro de tél:</strong> {employeeDetails.numerodetel}
+            </li>
+            <li className="list-group-item">
+              <strong>Fonction:</strong> {employeeDetails.fonction}
+            </li>
+          </ul>
+        ) : (
+          <p>Aucun détail disponible.</p>
+        )}
+      </div>
+    </div>
+  </div>
+
+  {/* Calendar and Leave Summary */}
+  <div className="col-md-9">
+    <div className="d-flex flex-wrap justify-content-between">
+      {/* Calendar Card */}
+      <div className="card shadow-sm mb-4 flex-fill mr-3" style={{ flex: "1 1 48%" }}>
+        <div className="card-body">
+          <h4 className="resume-title mb-4">Calendrier des absences</h4>
+          <Calendar activities={activities} onMonthChange={handleMonthChange} />
+          <button className="btn btn-primary mt-3" onClick={handleViewDetails}>
+            Plus de détails
+          </button>
+        </div>
+      </div>
+
+      {/* Leave Summary Card */}
+      <div className="card shadow-sm mb-4 flex-fill" style={{ flex: "1 1 48%" }}>
+        <div className="card-body">
+          <h4 className="resume-title mb-4">Résumé Annuel des Congés</h4>
+          {statistics?.yearlySummary ? (
+            <div className="yearly-summary">
+              <p>
+                <strong>Total Acquis :</strong> {statistics.yearlySummary.totalPaidLeaveBalance} jours
+              </p>
+              <p>
+                <strong>Total Utilisé (Payé) :</strong> {statistics.yearlySummary.totalLeaveUsedPaid} jours
+              </p>
+              <p>
+                <strong>Total Utilisé (Non-Payé) :</strong> {statistics.yearlySummary.totalLeaveUsedUnpaid} jours
+              </p>
+              <p>
+                <strong>Solde Restant :</strong> {statistics.yearlySummary.finalRemainingPaidLeave} jours
+              </p>
             </div>
+          ) : (
+            <p>Chargement des données annuelles...</p>
+          )}
+
+          <h4 className="mt-4">Répartition Mensuelle</h4>
+          {statistics?.monthlyBreakdown?.length > 0 ? (
+            <ul className="list-group">
+              {statistics.monthlyBreakdown.map((entry, index) => (
+                <li key={index} className="list-group-item">
+                  <strong>Mois:</strong> {entry.month} |{' '}
+                  <strong>Acquis:</strong> {entry.paidLeaveBalance} jours |{' '}
+                  <strong>Utilisé (Payé):</strong> {entry.usedPaidLeave} jours |{' '}
+                  <strong>Utilisé (Non-Payé):</strong> {entry.usedUnpaidLeave} jours |{' '}
+                  <strong>Restant:</strong> {entry.remainingPaidLeave} jours
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>Chargement des données mensuelles...</p>
+          )}
         </div>
-    );
-}
+      </div>
+    </div>
+  </div>
+  </div>
 
-function ErrorAlert({ message }) {
-    return (
-        <div className="container mt-4">
-            <div className="alert alert-danger" role="alert">
-                {message}
-            </div>
-        </div>
-    );
-}
+      {/* Statistics Fetching Logic */}
+      <StatisticsCard
+        employeeId={employeeId}
+        year={year}
+        onDataFetched={handleDataFetched}
+      />
+    </div>
+  </div>
+);
 
-function NoActivitiesAlert() {
-    return (
-        <div className="container mt-4">
-            <div className="alert alert-info" role="alert">
-                Aucune activité trouvée pour cette période.
-            </div>
-        </div>
-    );
-}
-
-function StatisticsCard({ statistics }) {
-    return (
-        <div className="row mb-4">
-            <div className="col-md-6">
-                <div className="card h-100 border-0 shadow-sm">
-                    <div className="card-header bg-primary text-white">
-                        <h5 className="card-title mb-0">Résumé des Activités</h5>
-                    </div>
-                    <div className="card-body">
-                        <ul className="list-group list-group-flush">
-                            <StatisticItem label="Total Missions" value={statistics.totalMissions} badgeClass="bg-primary" />
-                            <StatisticItem label="Jours de Congé" value={statistics.conge} badgeClass="bg-warning" />
-                            <StatisticItem label="Absences" value={statistics.absent} badgeClass="bg-danger" />
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-function StatisticItem({ label, value, badgeClass }) {
-    return (
-        <li className="list-group-item d-flex justify-content-between align-items-center">
-            {label}
-            <span className={`badge ${badgeClass} rounded-pill`}>{value}</span>
-        </li>
-    );
-}
-
-function ActivityLog({ activities }) {
-    return (
-        <div className="row">
-            <div className="col">
-                <div className="card border-0 shadow-sm">
-                    <div className="card-header bg-dark text-white">
-                        <h5 className="card-title mb-0">Journal Détaillé des Activités</h5>
-                    </div>
-                    <div className="card-body">
-                        <div className="table-responsive">
-                            <table className="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Heure d'Arrivée</th>
-                                        <th>Heure de Départ</th>
-                                        <th>Statut</th>
-                                        <th>Missions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {activities.map((activity, index) => (
-                                        <ActivityRow key={index} activity={activity} />
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-}
-
-function ActivityRow({ activity }) {
-    // Normalize the status to lowercase to match against the `statusClass` map
-    const normalizedStatus = (activity.status || '').toLowerCase().trim();
-
-    // Define the statusClass map
-    const statusClass = {
-        'congé': 'bg-warning',
-        'présent': 'bg-success',
-        'absent': 'bg-danger',
-        'no activity': 'bg-secondary'
-    }[normalizedStatus] || 'bg-secondary'; // default to 'No activity' color if status doesn't match
-
-    console.log(`Date: ${activity.date}, Status: ${activity.status}, Normalized Status: ${normalizedStatus}`);
-
-    return (
-        <tr>
-            <td>{moment(activity.date).isValid() ? moment(activity.date).format('DD-MM-YYYY') : 'Invalid Date'}</td>
-            <td>{activity.inTime || '--'}</td>
-            <td>{activity.outTime || '--'}</td>
-            <td><span className={`badge ${statusClass}`}>{activity.status}</span></td>
-            <td>{activity.numberOfMissions || 0}</td>
-        </tr>
-    );
-}
-
-function calculateStatistics(activities) {
-    return activities.reduce((stats, activity) => {
-        return {
-            totalMissions: stats.totalMissions + (activity.numberOfMissions || 0),
-            absent: stats.absent + (activity.status === 'absent' ? 1 : 0),
-            conge: stats.conge + (activity.status === 'congé' ? 1 : 0),
-        };
-    }, { totalMissions: 0, absent: 0, conge: 0 });
+  
+  
 }

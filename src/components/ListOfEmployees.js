@@ -3,9 +3,12 @@ import axios from 'axios';
 import SideBar from './SideBar';
 import './ListOfEmployees.css';
 import EditEmployeeModal from './EditForm';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {  faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
 function EmployeeList() {
   const [employees, setEmployees] = useState([]);
+  //const [employeeDetails, setEmployeeDetails] = useState(null);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -46,81 +49,65 @@ function EmployeeList() {
     setSelectedEmployee(null);
     setIsEditing(false);
   };
-  const handleSave = async (formData, id) => {
-    try {
-      // Log the formData to see what's being sent
-      for (let pair of formData.entries()) {
-        console.log(pair[0] + ': ' + pair[1]);
-      }
-
-      if (isEditing && id) {
-        // Update employee
-        const response = await axios.put(`http://localhost:3000/employees/${id}`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          }
-        });
-        
-        if (response.data) {
-          const updatedEmployees = employees.map(emp => 
-            emp.id === id ? response.data : emp
-          );
-          setEmployees(updatedEmployees);
-          setRefreshList(prev => !prev);
-        }
-      } else {
-        // Add new employee - with error handling
-        try {
-          // First, validate the form data
-          if (!formData.get('prénom') || !formData.get('nom') || !formData.get('email')) {
-            throw new Error('Please fill in all required fields');
-          }
-
-          // Add employee with explicit error handling
-          const response = await axios.post('http://localhost:3000/employees/', formData, {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-            },
-            // Add timeout and validation
-            timeout: 5000,
-            validateStatus: function (status) {
-              return status < 500; // Resolve only if the status code is less than 500
-            }
-          });
-
-          if (response.status === 201 || response.status === 200) {
-            // Successfully added
-            setEmployees(prev => [...prev, response.data]);
-            setError(null);
-            closeModals();
-          } else {
-            throw new Error(`Server responded with status: ${response.status}`);
-          }
-        } catch (err) {
-          if (err.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            console.error('Server Error:', err.response.data);
-            setError(`Server Error: ${err.response.data.message || 'Unknown error occurred'}`);
-          } else if (err.request) {
-            // The request was made but no response was received
-            console.error('Network Error:', err.request);
-            setError('Network error - no response received');
-          } else {
-            // Something happened in setting up the request that triggered an Error
-            console.error('Error:', err.message);
-            setError(err.message);
-          }
-          throw err; // Re-throw to prevent modal from closing
-        }
-      }
-    } catch (err) {
-      console.error('Error saving employee:', err);
-      setError(err.message || 'An error occurred while saving');
-      // Don't close modal if there's an error
-      return;
+  const handleSave = async (formData, id = null) => {
+  try {
+    // Log the FormData content for debugging
+    console.log('FormData content:');
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
     }
-  };
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}:`, value);
+    }
+
+    if (id) {
+      // Update employee 
+      try {
+        const response = await axios.put(`http://localhost:3000/employees/${id}`, formData, console.log("***********",formData), {
+          headers: { 'Content-Type': 'multipart/form-data' }
+  
+        });
+        console.log('Employee updated:', response.data);
+        setEmployees(prev =>
+          prev.map(emp => (emp.id === id ? response.data : emp))
+        );
+      } catch (error) {
+        if (error.response) {
+          console.error('Error data:', error.response.data); // Log the server error
+      }
+      }
+      // Update the local state with the updated employee
+     
+    } else {
+      // Add new employee
+      const response = await axios.post('http://localhost:3000/employees/', formData, {
+        headers: {'Content-Type': 'multipart/form-data' }
+
+      });
+      console.log('Employee added:', response.data);
+
+      // Add the new employee to the local state
+      setEmployees(prev => [...prev, response.data]);
+    }
+
+    // Reset error, close the modal, and refresh the list
+    setError(null);
+    setRefreshList(prev => !prev);
+  } catch (err) {
+    console.error('Error saving employee:', err);
+
+    // Handle server and network errors
+    if (err.response) {
+      setError(`Server Error: ${err.response.data.message || 'Unknown error occurred'}`);
+    } else if (err.request) {
+      setError('Network Error: No response received');
+    } else {
+      setError(err.message || 'An unexpected error occurred');
+    }
+  }
+};
+
+  
   const handleDeleteEmployee = async (id) => {
     try {
       await axios.delete(`http://localhost:3000/employees/${id}`);
@@ -150,14 +137,23 @@ function EmployeeList() {
           <tbody>
             {employees.map((employee) => (
               <tr key={employee.id}>
-                <td>{employee.prénom} {employee.nom}</td>
+                <td>
+                <img
+                    src={employee.profile_image}
+                   alt=""
+                    className="rounded-circle mr-3"
+                   width="45"
+                   height="45"
+                />
+                 {employee.prenom} {employee.nom}
+                </td>
                 <td>{employee.fonction}</td>
                 <td>
                   <button type="button" onClick={() => openEditModal(employee)}>
-                    Modifier
+                    <FontAwesomeIcon icon={faEdit} />
                   </button>
                   <button onClick={() => handleDeleteEmployee(employee.id)}>
-                    Supprimer
+                   <FontAwesomeIcon icon={faTrash} />
                   </button>
                 </td>
               </tr>

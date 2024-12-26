@@ -4,33 +4,33 @@
   top: 0;
   width: 240px;
   height: 100vh;
-  background-color: #fff7f7;
+  background-color: #ffffff;
   color: #060101;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* This will push the logout button to the bottom */
+  justify-content: space-between; 
   overflow-y: auto;
   z-index: 1000;
   padding-top: 20px;
-  padding-bottom: 20; /* Remove bottom padding for cleaner alignment */
+  padding-bottom: 20; 
   padding-left: 10px;
   padding-right: 10px;
 }
 
 .logo-container {
-  align-self: flex-start; /* Aligns the logo container to the left */
-  margin-top: 0; /* Align logo to the top */
+  align-self: flex-start; 
+  margin-top: 0; 
   padding: 0;
 }
 
 .logo-container img {
-  width: 30%; /* Logo width can be adjusted if necessary */
+  width: 30%; 
   height: auto;
-  margin-left: 0; /* Ensure logo sticks to the very left */
+  margin-left: 0;
 }
 
 .menu-items {
-  width: 100%; /* Ensures that the menu items use the full width */
+  width: 100%; 
   overflow-y: auto;
 }
 .sidebar ul {
@@ -56,9 +56,9 @@
 }
 
 .logout-container {
-  padding: 10px 20px; /* Consistent padding */
+  padding: 10px 20px;
   width: 100%;
-  box-sizing: border-box; /* Ensures padding does not affect width */
+  box-sizing: border-box; 
 }
 
 .logout-btn {
@@ -69,7 +69,7 @@
   border-radius: 4px;
   font-size: 16px;
   cursor: pointer;
-  width: 100%; /* Ensures the button is full-width */
+  width: 100%; 
   text-align: center;
 }
 

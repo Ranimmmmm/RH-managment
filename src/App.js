@@ -1,40 +1,37 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import Login from './components/Login';
-import Dashboard from './components/Dashboard';
 import TeamActivityDashboard from './components/TeamActivityDashboard';
-import ListOfEmployees from './components/ListOfEmployees'
-import SideBar from './components/SideBar'
+import EmployeeList from './components/ListOfEmployees';
+import PublicHolidaysDashboard from './components/PublicHolidaydashboard';
 import './App.css';
 import EmployeeProfile from './components/Profile';
+import EmployeeActivityHistory from './components/EmployeeActivityHistory'
 function App() {
-  const [user, setUser] = useState();
+  
 
-  const handleLogin = (userData) => {
-    setUser(userData);  // Now just setting user data, role is not needed
-  };
 
   return (
     <Router>
       <div className="App">
-        {user && <SideBar />}
+         
         <div className="content">
           <Routes>
-            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="/" element={<Login />} />
             <Route 
               path="/login" 
-              element={
-                user ? 
-                <Navigate to="/employee/dashboard" replace /> :  // Directly navigate to /dashboard
-                <Login onLogin={handleLogin} />
+              element={localStorage.getItem('token')?
+                <Navigate to="/employee/TeamActivity" replace  /> : <Login />
               } 
             />
-               <Route path="/employee/Dashboard" element={<Dashboard  />} />
                 <Route path="/employee/TeamActivity" element={<TeamActivityDashboard  />} />
                 <Route path="/employee/:employeeId/:year/:month" element={<EmployeeProfile />} />   
-                <Route path="employee/Listeofemployees" element={<ListOfEmployees />} />
+                <Route path="/employee/:employeeId/details" element={<EmployeeActivityHistory />} />
+                <Route path="employee/Listeofemployees" element={<EmployeeList />} />
+                <Route path="/public-holidays" element={<PublicHolidaysDashboard />} />
+
             </Routes>
         </div>
       </div>

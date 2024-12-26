@@ -1,27 +1,70 @@
-/* General container padding */
-.page-container {
-    padding: 20px;
+
+ /* Container for the Résumé de congé */
+.resume-container {
+  padding: 20px; /* Add padding around the section */
+  margin: 0 auto; /* Center the section */
+  max-width: 800px; /* Limit the width for better spacing */
 }
 
-/* Sticky position for the button */
-.sticky-button {
-    position: sticky;
-    top: 20px;
-    z-index: 10;
+/* Title styling for Résumé de congé */
+.resume-title {
+  text-align: center;
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 20px;
 }
 
-/* Table container to allow scrolling if the content is too large */
-.table-container {
-    max-height: 500px;
-    overflow-y: auto;
-    overflow-x: hidden;
+/* Month summary container */
+.month-summary {
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #ccc; /* Light line to separate months */
 }
 
-/* Sticky position for the table header */
-.sticky-header {
-    position: sticky;
-    top: 0;
-    background-color: #333;
-    color: white;
-    z-index: 100;
+/* Numbers container (acquired, used, remaining) */
+.numbers-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  margin-top: 15px;
+  margin-bottom: 15px;
 }
+
+/* Individual number section */
+.number-section {
+  text-align: center;
+}
+
+.number-section p:first-child {
+  font-size: 24px;
+  color: green;
+  font-weight: bold;
+}
+
+.number-section p:last-child {
+  font-size: 14px;
+  color: #666;
+}
+
+/* Separator between numbers */
+.separator {
+  height: 40px;
+  width: 1px;
+  background-color: #ccc;
+}
+
+/* Yearly summary section */
+.yearly-summary {
+  margin-top: 30px;
+}
+
+.yearly-summary h6 {
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 5px;
+}
+
+  

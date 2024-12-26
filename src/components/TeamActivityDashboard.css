@@ -1,119 +1,105 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
 
+
+
+
+
+/* .notifications {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.notifications i {
+  color: #d93025;
+  margin-right: 5px;
+} */
+.sidebar {
+  width: 250px;
+  min-height: 100vh; 
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+
+
+/* Table Section with Zoom */
+/* Adjusted Dashboard Container */
 .dashboard-container {
+  display: grid;
+  background-color: #fafafa;
+  grid-template-columns: 200px 1fr 300px; /* Sidebar | Expanded Table | Calendar */
+  grid-template-rows: auto 1fr; /* Header | Content */
+  gap: 20px;
+  box-sizing: border-box;
+  padding: 20px;
+  padding-top: 80px;
+}
+
+.activity-table-container {
+  grid-column: 2 / 3;
   display: flex;
   flex-direction: column;
-  align-items: center;  /* This centers the children horizontally */
-  justify-content: center;  /* This centers the children vertically if needed */
-  width: 100%;  /* Ensures the container takes full width */
-}
-.toolbar {
-  display: flex;
-  justify-content: space-between; /* This spreads out the children to both ends */
-  align-items: center; /* This keeps the items vertically aligned */
-  padding: 10px; /* Adds some padding around the toolbar */
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: auto;
+  min-height: 500px; /* Ensure larger vertical space */
 }
 
-.search-container {
-  margin-right: 20px;  /* Allows the search container to take up as much space as available */
-}
-
-.sort-container {
-  flex-grow: 2; /* Allows the sort container to take up as much space as available */
-  display: flex;
-  justify-content: flex-end; /* Aligns the sort dropdown to the right */
-}
-
-.btn-confirmer {
-  box-sizing: content-box;
-  padding: 8px 16px;
-  transition-duration: 0.4s;  /* Smooth transition for hover effect */
-  cursor: pointer;  /* Pointer cursor on hover */
-  border-radius: 5px;
-  border: none;
-}
-/* Table styling */
-.activity-table {
+/* Table Adjustments */
+table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 16px;
+  font-size: 18px; /* Increase font size for better readability */
+  table-layout: auto; /* Allow columns to adjust dynamically */
 }
 
-.activity-table th,
-.activity-table td {
-  padding: 16px;
+table th,
+table td {
+  padding: 20px; /* Increase padding for larger cell sizes */
   text-align: left;
   border-bottom: 1px solid #ddd;
-  white-space: nowrap;
 }
 
-
-/* Wrap the content inside table cells on smaller screens */
-.activity-table th,
-.activity-table td {
-  white-space: nowrap;
-}
-
-.activity-table td {
-  text-overflow: ellipsis;
-  overflow: hidden;
-}
-
-/* Title styling */
-.dashboard-title {
-  font-size: 28px;
+table th {
+  background-color: #f0f0f0;
   font-weight: bold;
-  margin-bottom: 20px;
-  text-align: center;
-  color: #ea220c;
 }
 
-/* Media Queries for different screen sizes */
-
-/* For phones (up to 480px) */
-@media (max-width: 480px) {
-  .dashboard-container {
-    padding: 10px;
-    width: 95vw;
-  }
-
-  .dashboard-title {
-    font-size: 22px;
-  }
-
-  .activity-table {
-    font-size: 14px;
-  }
-
-  .activity-table th,
-  .activity-table td {
-    padding: 8px;
-  }
-  
-  /* Allow table to scroll horizontally on small screens */
-  .activity-table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
+table tr {
+  height: 60px; /* Set row height to make the table visually larger */
 }
 
-/* For tablets (up to 768px) */
+table tbody tr:hover {
+  background-color: #f7f7f7; /* Highlight row on hover */
+}
+
+
+
+
+/* Calendar Section */
+.calendar-section {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
 @media (max-width: 768px) {
   .dashboard-container {
-    padding: 15px;
-    width: 95vw;
+    grid-template-columns: 1fr; /* Stack sections vertically */
+    grid-template-rows: auto auto auto;
   }
-
-  .dashboard-title {
-    font-size: 24px;
-  }
-
-  .activity-table {
-    font-size: 15px;
-  }
-
-  .activity-table th,
-  .activity-table td {
-    padding: 10px;
+  .sidebar {
+    width: 100%; /* Full-width sidebar for mobile */
   }
 }

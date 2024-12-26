@@ -1,0 +1,123 @@
+/* Calendar Container Styling */
+.react-calendar {
+  width: 350px;
+  max-width: 100%;
+  background: white;
+  border: 1px solid #a0a096;
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.125em;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Navigation Styling */
+.react-calendar__navigation {
+  display: flex;
+  height: 44px;
+  margin-bottom: 1em;
+  background-color: #f0f0f0;
+}
+
+.react-calendar__navigation button {
+  min-width: 44px;
+  background: none;
+  border: none;
+  color: #6f6f6f;
+  transition: all 0.3s ease;
+}
+
+.react-calendar__navigation button:hover {
+  background-color: #e0e0e0;
+  color: #007bff;
+}
+
+.react-calendar__navigation__label {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Day Tiles Styling */
+.react-calendar__month-view__days__day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  border-radius: 50%;
+  margin: 4px;
+}
+
+.react-calendar__tile {
+  max-width: 100%;
+  padding: 10px;
+  background: none;
+  text-align: center;
+  border-radius: 50%;
+}
+
+.react-calendar__tile:enabled:hover {
+  background-color: #e0f4ff;
+}
+
+.react-calendar__tile--now {
+  background-color: #6f48eb33;
+  color: #6f48eb;
+}
+
+.react-calendar__tile--active {
+  background-color: #007bff;
+  color: white;
+}
+
+/* Special Day Styling */
+.absent-day {
+  background-color: rgba(255, 0, 0, 0.2) !important;
+  color: #900 !important;
+}
+
+.leave-day {
+  background-color: rgba(0, 255, 0, 0.2) !important;
+  color: #047b2c !important;
+}
+
+.holiday-day {
+  background-color: rgba(255, 165, 0, 0.2) !important;
+  color: #856404 !important;
+}
+
+/* Color Indicators Styling */
+.color-indicators {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.color-indicators div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.color-box {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  display: inline-block;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive Design */
+@media (max-width: 600px) {
+  .react-calendar {
+    width: 100%;
+  }
+}

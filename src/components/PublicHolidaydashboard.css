@@ -1,0 +1,88 @@
+.public-holidays-dashboard {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.holiday-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.holiday-form input {
+  flex: 1;
+  padding: 8px;
+  font-size: 16px;
+}
+
+.holiday-form button {
+  padding: 8px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.holiday-form button:hover {
+  background-color: #030507;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.table th,
+.table td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+.table th {
+  background-color: #000000;
+}
+
+.edit-btn {
+  color: #000000;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+.edit-btn:hover {
+  background-color:#d93025;
+}
+
+.delete-btn {
+  color: #000000;
+  border: none;
+  padding: 6px;
+  cursor: pointer;
+}
+.delete-btn:hover {
+  background-color:#d93025;
+} 
+
+.add-btn {
+  width: auto;
+  padding: 10px 20px;
+  background-color: #0d6efd;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  display: block;
+  margin: 20px auto;
+}
+.add-btn:hover {
+  background-color: #0a58ca;
+}
+
+.error {
+  color: red;
+  margin-bottom: 10px;
+}

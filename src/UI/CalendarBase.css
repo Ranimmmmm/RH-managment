@@ -1,0 +1,79 @@
+.dashboard-container {
+    display: flex;
+    gap: 20px;
+  }
+  
+  .activity-table-container {
+    flex: 3;
+  }
+  
+  .calendar-container {
+    flex: 1;
+    display: flex;
+    justify-content: flex-start;
+  }
+  
+  .calendar {
+    width: 100%;
+    max-width: 300px;
+    border: 1px solid #ffffff;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .calendar-days,
+  .calendar-cells {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* 5 columns for Mon-Fri */
+    gap: 5px;
+  }
+  
+  .calendar-day,
+  .calendar-cell {
+    text-align: center;
+    padding: 5px;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  
+  .calendar-cell {
+    cursor: pointer;
+  }
+  
+  .calendar-cell.selected {
+    background-color: #007bff;
+    color: #fff;
+  }
+  
+  .calendar-nav-btn {
+  border-radius: 50%; /* Round button */
+  width: 30px;
+  height: 30px;
+  background-color: #f0f0f0; /* Light grey background */
+  border: 1px solid #d9dee3; /* Subtle border */
+  color: #6c757d; /* Softer text color */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.calendar-nav-btn:hover {
+  background-color: #e0e0e0; /* Slightly darker on hover */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow on hover */
+}
+
+.calendar-nav-btn:active {
+  background-color: #d0d0d0; /* Pressed state */
+  transform: scale(0.95); /* Slight press effect */
+}
