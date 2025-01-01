@@ -73,14 +73,6 @@ app.get('/auth/google/callback',
     res.redirect('/');
   });
 
-  /* cron.schedule('0 08 * * *', async () => {
-    try {
-      const response = await axios.get('http://localhost:3000/public-holidays/check-holiday');
-      console.log('**response is',response.data.message);
-    } catch (error) {
-      console.error('Error checking holidays:', error.message);
-    }
-  }); */
 const PORT = process.env.PORT || 3000;
 
 // Ensure the database is set up before listening
